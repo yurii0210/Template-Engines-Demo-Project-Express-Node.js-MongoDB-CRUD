@@ -187,6 +187,34 @@ app.get('/users/:userId', async (req, res) => {
     }
 });
 
+// GET: форма редагування користувача
+app.get('/users/edit/:userId', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+        if (!user) return res.status(404).send('Користувача не знайдено');
+        res.render('pug/edit-user.pug', { title: `Редагувати ${user.name}`, user });
+    } catch (err) {
+        res.status(500).send('Помилка сервера при завантаженні користувача');
+    }
+});
+
+// POST: збереження змін користувача
+app.post('/users/edit/:userId', isAuthenticated, async (req, res) => {
+    try {
+        const { name, email, age, position, bio } = req.body;
+        const user = await User.findByIdAndUpdate(req.params.userId, {
+            name, email, age, position, bio
+        }, { new: true });
+
+        if (!user) return res.status(404).send('Користувача не знайдено');
+
+        res.redirect(`/users/${req.params.userId}`);
+    } catch (err) {
+        res.status(500).send('Помилка сервера при оновленні користувача');
+    }
+});
+
+
 // --- МАРШРУТ: Видалення користувача ---
 app.post('/users/delete/:userId', isAuthenticated, async (req, res, next) => {
     const userId = req.params.userId;

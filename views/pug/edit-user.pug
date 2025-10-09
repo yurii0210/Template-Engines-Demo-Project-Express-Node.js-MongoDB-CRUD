@@ -1,0 +1,28 @@
+extends layout
+
+block content
+    h1 Редагувати користувача
+
+    form(action=`/users/edit/${user._id}` method="POST")
+        .form-group
+            label(for="name") Ім'я
+            input#name.form-control(type="text" name="name" value=user.name required)
+
+        .form-group
+            label(for="email") Email
+            input#email.form-control(type="email" name="email" value=user.email required)
+
+        .form-group
+            label(for="age") Вік
+            input#age.form-control(type="number" name="age" value=user.age)
+
+        .form-group
+            label(for="position") Посада
+            input#position.form-control(type="text" name="position" value=user.position)
+
+        .form-group
+            label(for="bio") Біо
+            textarea#bio.form-control(name="bio")= user.bio
+
+        button.btn.btn-primary(type="submit") Зберегти
+        a.btn.btn-secondary(href=`/users/${user._id}` style="margin-left: 10px") Відміна
