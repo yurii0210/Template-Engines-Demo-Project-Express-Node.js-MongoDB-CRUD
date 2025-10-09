@@ -1,0 +1,32 @@
+extends layout
+
+block content
+    .user-details
+        a.back-btn(href="/users") ← Назад до списку
+        
+        .user-profile
+            img(src=user.avatar, alt=user.name)
+            
+            .user-info
+                h1= user.name
+                p.position= user.position
+                p.age Вік: #{user.age} років
+                p.email Email: #{user.email}
+                
+                .bio
+                    h3 Про себе:
+                    p= user.bio
+
+                // БЛОК КНОПОК КЕРУВАННЯ КОРИСТУВАЧЕМ (для авторизованих)
+                if isAuthenticated
+                    .user-actions.mt-4
+                        // Кнопка "Редагувати"
+                        // Примітка: Редагування свого профілю зазвичай веде на окремий маршрут /profile/edit,
+                        // але тут використовуємо загальний /users/edit/:id для простоти адміністрування.
+                        a.btn.btn-primary(href=`/users/edit/${user._id}`) ✍️ Редагувати профіль
+                        
+                        // Кнопка "Видалити"
+                        // Перевіряємо, що ми не видаляємо користувача, який зараз авторизований
+                        if user._id.toString() !== locals.user._id.toString()
+                            form.d-inline(action=`/users/delete/${user._id}`, method="POST", onsubmit=`return confirm('Ви впевнені, що хочете видалити користувача ${user.name}?');`)
+                                button.btn.btn-danger(type="submit") 🗑️ Видалити користувача

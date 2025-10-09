@@ -1,0 +1,45 @@
+doctype html
+html(lang="uk")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title= title || 'Template Engines Demo'
+    // Основний CSS-файл, який містить змінні для тем, має бути першим
+    link(rel="stylesheet", href="/css/style.css") 
+    
+    // Інші CSS-файли підключаються після нього
+    if currentPath === '/users' || currentPath === '/'
+      link(rel="stylesheet", href="/css/users.css")
+    if currentPath === '/articles' || currentPath === '/'
+      link(rel="stylesheet", href="/css/articles.css")
+    
+    // Решта тегів
+    link(rel="preconnect", href="https://fonts.googleapis.com")
+    link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin)
+    link(rel="icon" href="/favicon.ico")
+    link(href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap", rel="stylesheet")
+  body
+    header
+      nav
+        a(href="/", class=(currentPath === '/' ? 'active' : '')) Головна
+        a(href="/users", class=(currentPath === '/users' ? 'active' : '')) Користувачі
+        a(href="/articles", class=(currentPath === '/articles' ? 'active' : '')) Статті
+
+        // Умовне відображення посилань
+        if isAuthenticated
+          a(href="/profile", class=(currentPath === '/profile' ? 'active' : '')) Профіль
+          a(href="/logout") Вийти
+        else
+          a(href="/login", class=(currentPath === '/login' ? 'active' : '')) Вхід
+          a(href="/register", class=(currentPath === '/register' ? 'active' : '')) Реєстрація
+
+    main
+      block content
+
+    footer
+      .footer-content
+        p © 2025 Template Engines Server. Всі права захищено.
+        .footer-links
+          a(href="https://github.com/yurii0210/PUG-and-EJS-from-Express.git", target="_blank") GitHub
+    
+    script(src="/js/main.js", defer)

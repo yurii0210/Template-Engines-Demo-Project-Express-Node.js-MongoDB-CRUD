@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  .auth-form
+    h1 Реєстрація
+    if error
+      .error-message= error
+    form(action="/register", method="POST")
+      .form-group
+        label(for="email") Email:
+        input(type="email", id="email", name="email", required, autocomplete="username")
+      .form-group
+        label(for="password") Пароль:
+        input(type="password", id="password", name="password", required, autocomplete="new-password")
+      button.btn(type="submit") Зареєструватися
+    .auth-link
+      p Вже є акаунт? 
+        a(href="/login") Увійти

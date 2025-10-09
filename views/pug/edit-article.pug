@@ -1,0 +1,37 @@
+// views/pug/edit-article.pug
+extends ../layout.pug
+
+block content
+  .form-container.auth-form
+    h1 Редагувати статтю: #{article.title}
+    
+    // Форма відправляє POST-запит на маршрут оновлення
+    form(action=`/articles/edit/${article._id}`, method="POST")
+      
+      // Заголовок статті
+      .form-group
+        label(for="title") Заголовок статті
+        input(type="text", id="title", name="title", required, value=article.title)
+      
+      // Автор (тільки для читання)
+      .form-group
+        label(for="author") Автор
+        input(type="text", id="author", name="author", value=article.author, readonly)
+      
+      // URL зображення
+      .form-group
+        label(for="image") URL зображення
+        input(type="url", id="image", name="image", required, value=article.image)
+        
+      // Текст статті
+      .form-group
+        label(for="content") Текст статті
+        textarea(id="content", name="content", required, rows="10")= article.content
+        
+      // Теги
+      .form-group
+        label(for="tags") Теги (через кому)
+        // Об'єднуємо масив тегів у рядок через кому для відображення
+        input(type="text", id="tags", name="tags", value=article.tags.join(', '))
+        
+      button.btn.btn-primary(type="submit") Зберегти зміни

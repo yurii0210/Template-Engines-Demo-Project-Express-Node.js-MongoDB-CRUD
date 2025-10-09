@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/articles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Головна</a>
+            <a href="/users" class="<%= currentPath === '/users' ? 'active' : '' %>">Користувачі</a>
+            <a href="/articles" class="<%= currentPath === '/articles' ? 'active' : '' %>">Статті</a>
+
+            <% if (isAuthenticated) { %>
+                <a href="/profile" class="<%= currentPath === '/profile' ? 'active' : '' %>">Профіль</a>
+                <a href="/logout">Вийти</a>
+            <% } else { %>
+                <a href="/login" class="<%= currentPath === '/login' ? 'active' : '' %>">Вхід</a>
+                <a href="/register" class="<%= currentPath === '/register' ? 'active' : '' %>">Реєстрація</a>
+            <% } %>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Список статей</h1>
+        
+        <% if (isAuthenticated) { %>
+            <div class="articles-header-actions mb-3">
+                <a href="/articles/add" class="btn btn-success">➕ Додати статтю</a>
+            </div>
+        <% } %>
+
+        <div class="articles-list">
+            <% articles.forEach(function(article) { %>
+                <article class="article-card">
+                    <img src="<%= article.image %>" alt="<%= article.title %>">
+                    <div class="article-content">
+                        <h2><%= article.title %></h2>
+                        <div class="meta">
+                            <span class="author">Автор: <%= article.author %></span>
+                            <span class="date"><%= article.date %></span>
+                            <span class="category"><%= article.category %></span>
+                        </div>
+                        <p><%= article.content %></p>
+                        <div class="tags">
+                            <% article.tags.forEach(function(tag) { %>
+                                <span class="tag"><%= tag %></span>
+                            <% }); %>
+                        </div>
+                        
+                        <div class="article-actions mt-2">
+                            <a href="/articles/<%= article._id %>" class="btn btn-info">Читати далі</a>
+                            
+                            <% if (isAuthenticated) { %>
+                                <a href="/articles/edit/<%= article._id %>" class="btn btn-sm btn-secondary">✍️ Редагувати</a>
+                                
+                                <form action="/articles/delete/<%= article._id %>" method="POST" style="display: inline;" onsubmit="return confirm('Ви впевнені, що хочете видалити статтю «<%= article.title %>»?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">🗑️ Видалити</button>
+                                </form>
+                            <% } %>
+                        </div>
+                    </div>
+                </article>
+            <% }); %>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>© 2025 Template Engines Server</p>
+        <div class="footer-links">
+            <a href="https://github.com/yurii0210/PUG-and-EJS-from-Express.git" target="_blank">GitHub</a>
+    </div>
+    </div>
+    </footer>
+</body>
+</html>

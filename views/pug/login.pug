@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  .auth-form
+    h1 Вхід
+    form(action="/login", method="POST")
+      .form-group
+        label(for="email") Email:
+        input(type="email", id="email", name="email", required, autocomplete="username")
+      .form-group
+        label(for="password") Пароль:
+        input(type="password", id="password", name="password", required, autocomplete="current-password")
+      button.btn(type="submit") Увійти
+    .auth-link
+      p Немає акаунту? 
+        a(href="/register") Зареєструватися

@@ -1,0 +1,43 @@
+extends ./layout.pug
+
+block content
+  // Переконайтеся, що користувач авторизований, інакше цей шаблон не відобразиться
+  // Якщо маршрут захищений (isAuthenticated), locals.user має бути визначений.
+  .form-container.auth-form
+    h1 Додати нову статтю
+    
+    // Форма відправляє POST-запит на маршрут /articles/add
+    form(action="/articles/add", method="POST")
+      
+      // Заголовок статті
+      .form-group
+        label(for="title") Заголовок статті
+        input(type="text", id="title", name="title", required, placeholder="Наприклад: Вступ до Node.js")
+      
+      // Ім'я автора (заповнюється автоматично з даних користувача, але можна зробити тільки для читання)
+      .form-group
+        label(for="author") Автор
+        // !!! ВИПРАВЛЕННЯ ТУТ: Використовуємо locals.user для безпечнішого доступу !!!
+        input(type="text", id="author", name="author", value=locals.user ? locals.user.name : 'Гість', required, readonly)
+      
+      // URL зображення
+      .form-group
+        label(for="image") URL зображення
+        input(type="url", id="image", name="image", required, placeholder="Наприклад: /images/default-article.jpg")
+        
+      // Текст статті
+      .form-group
+        label(for="content") Текст статті
+        textarea(id="content", name="content", required, rows="10", placeholder="Введіть повний текст вашої статті тут...")
+        
+      // Категорія (не обов'язково, але корисно для фільтрації)
+      .form-group
+        label(for="category") Категорія
+        input(type="text", id="category", name="category", placeholder="Наприклад: Програмування")
+      
+      // Теги (для зручного пошуку)
+      .form-group
+        label(for="tags") Теги (через кому)
+        input(type="text", id="tags", name="tags", placeholder="Наприклад: Express, MongoDB, Backend")
+        
+      button.btn.btn-primary(type="submit") Опублікувати статтю

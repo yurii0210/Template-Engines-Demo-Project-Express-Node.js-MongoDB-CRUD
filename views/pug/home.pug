@@ -1,0 +1,64 @@
+extends layout
+
+block content
+    .hero-section
+        .hero-content
+            h1 Ласкаво просимо!
+            p.hero-description Демонстрація роботи шаблонізаторів PUG та EJS
+            .stats
+                .stat-item
+                    .stat-number= usersCount
+                    .stat-label Користувачі
+                .stat-item
+                    .stat-number= articlesCount
+                    .stat-label Статті
+
+    .features-section
+        h2 Можливості проекту
+        .features-grid
+            .feature-card
+                .feature-icon 🎨
+                h3 PUG шаблони
+                p Сучасний шаблонізатор з чистим синтаксисом для користувацьких сторінок
+                a.btn(href="/users") Переглянути користувачів
+            .feature-card
+                .feature-icon 📝
+                h3 EJS шаблони
+                p Потужний шаблонізатор з можливістю виконання JavaScript у шаблонах
+                a.btn(href="/articles") Переглянути статті
+            .feature-card
+                .feature-icon ⚡
+                h3 Сучасний дизайн
+                p Адаптивний дизайн з CSS Grid та Flexbox
+                a.btn(href="https://github.com/yurii0210/PUG-and-EJS-from-Express.git" target="_blank") GitHub репозиторій
+
+    .technology-section
+        h2 Використані технології
+        .tech-stack
+            .tech-item
+                img(src="https://nodejs.org/static/images/logo.svg" alt="Node.js" height="50")
+                span Node.js
+            .tech-item
+                img(src="https://www.vectorlogo.zone/logos/expressjs/expressjs-ar21.svg" alt="Express" height="40")
+                span Express
+            .tech-item
+                img(src="https://img.icons8.com/?size=100&id=61393&format=png&color=000000" alt="PUG" height="40")
+                span PUG
+            .tech-item
+                img(src="https://img.icons8.com/?size=100&id=puL87ypQPxxr&format=png&color=000000" alt="EJS" height="40")
+                span EJS
+            .tech-item
+                img(src="https://upload.wikimedia.org/wikipedia/commons/6/62/CSS3_logo.svg" alt="CSS3" height="40")
+                span CSS3
+
+    .cta-section
+        h2 Почніть використовувати вже зараз!
+        p Оберіть шаблонізатор, який вам більше подобається
+        .cta-buttons
+            a.btn.btn-primary(href="/users") Спробувати PUG
+            a.btn.btn-secondary(href="/articles") Спробувати EJS
+
+    .theme-changer
+        h3 Змінити тему:
+        a.btn(href="/set-theme/light") Світла 
+        a.btn(href="/set-theme/dark") Темна
