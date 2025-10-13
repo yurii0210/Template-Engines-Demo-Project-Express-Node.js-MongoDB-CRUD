@@ -415,6 +415,60 @@ app.get('/db-ops/find-with-projection', async (req, res) => {
     }
 });
 
+// --- ВИКОРИСТАННЯ КУРСОРІВ ---
+app.get('/users-cursor', async (req, res) => {
+    try {
+        const cursor = User.find().cursor();
+        const users = [];
+
+        for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
+            users.push({
+                name: doc.name,
+                email: doc.email,
+                age: doc.age,
+                position: doc.position
+            });
+        }
+
+        res.json({
+            message: 'Отримано користувачів за допомогою курсора',
+            count: users.length,
+            users
+        });
+    } catch (err) {
+        console.error('Помилка при використанні курсора:', err);
+        res.status(500).json({ error: 'Помилка сервера при обробці курсора' });
+    }
+});
+
+
+// --- АГРЕГАЦІЙНИЙ ЗАПИТ ---
+app.get('/users/average-age', async (req, res) => {
+    try {
+        const result = await User.aggregate([
+            { $match: { age: { $exists: true, $ne: null } } },
+            {
+                $group: {
+                    _id: null,
+                    averageAge: { $avg: '$age' },
+                    minAge: { $min: '$age' },
+                    maxAge: { $max: '$age' },
+                    totalUsers: { $sum: 1 }
+                }
+            }
+        ]);
+
+        const stats = result[0] || { averageAge: 0, totalUsers: 0 };
+        res.json({
+            message: 'Статистика користувачів (агрегація)',
+            stats
+        });
+    } catch (err) {
+        console.error('Помилка при агрегації:', err);
+        res.status(500).json({ error: 'Помилка сервера при агрегаційному запиті' });
+    }
+});
+
 // --- Обробка 404 та 500 помилок ---
 app.use((req, res) => res.status(404).send('Сторінку не знайдено'));
 app.use((err, req, res, next) => {
