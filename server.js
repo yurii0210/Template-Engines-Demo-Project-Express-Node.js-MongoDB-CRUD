@@ -1,3 +1,14 @@
+// server.js (оновлений) ---------------------------------------
+/**
+ * Зміни:
+ * - Додано dotenv для використання MONGO_URI з .env
+ * - Підключено моделі з папки models/
+ * - Закоментовано старі inline schema/model визначення (щоб не дублювати)
+ * - Додано маршрути для assignments (insertMany, highscores, increase-score, delete-lowest, projection)
+ */
+
+// --- Базові requires (залишено основні require як було) ---
+require('dotenv').config(); // <-- додаємо dotenv
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
@@ -8,44 +19,28 @@ const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
 // --- Підключення до MongoDB Atlas ---
-const mongoDB_URI = 'mongodb+srv://uriy0210:Madeta2025_@cluster0.etb7pyd.mongodb.net/template-engines?retryWrites=true&w=majority';
-mongoose.connect(mongoDB_URI)
-    .then(() => console.log('Підключено до MongoDB Atlas!'))
+// Змінено: беремо з process.env, якщо немає використовуємо стару константу (без видалення оригіналу)
+const defaultMongoURI = 'mongodb+srv://uriy0210:Madeta2025_@cluster0.etb7pyd.mongodb.net/template-engines?retryWrites=true&w=majority';
+// Якщо в .env встановлено MONGO_URI -> використаємо його, інакше fallback на defaultMongoURI
+const mongoDB_URI = process.env.MONGO_URI || defaultMongoURI;
+
+mongoose.connect(mongoDB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+    .then(() => console.log('Підключено до MongoDB Atlas (Mongoose)!'))
     .catch(err => console.error('Помилка підключення:', err));
 
-// --- Моделі MongoDB ---
-const userSchema = new mongoose.Schema({
-    name: String,
-    email: { type: String, unique: true, required: true },
-    password: { type: String, required: true },
-    age: Number,
-    position: String,
-    avatar: { type: String, default: '/images/default-avatar.jpg' },
-    bio: String,
-    resetToken: String,
-    resetTokenExpiration: Date,
-});
-const User = mongoose.model('User', userSchema);
+mongoose.connection.on('error', err => console.error('Mongo connection error:', err));
+mongoose.connection.on('disconnected', () => console.warn('Mongo disconnected!'));
 
-const articleSchema = new mongoose.Schema({
-    title: String,
-    author: String,
-    date: String,
-    content: String,
-    category: String,
-    tags: [String],
-    image: String
-});
-const Article = mongoose.model('Article', articleSchema);
+// --- Моделі---
+const User = require('./models/User');
+const Article = require('./models/Article');
+const TestItem = require('./models/TestItem');
+const Assignment = require('./models/Assignment'); // нова модель для завдання assignments
 
-const testSchema = new mongoose.Schema({
-    name: String,
-    value: Number,
-    category: String,
-    tags: [String]
-});
-const TestItem = mongoose.model('TestItem', testSchema);
-
+// ---------------------------
 // --- Ініціалізація Express ---
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -306,7 +301,6 @@ app.get('/articles/:articleId', async (req, res) => {
 });
 
 // --- ДОДАТКОВІ МАРШРУТИ ДЛЯ ТЕСТОВОГО CRUD (використовуємо JSON) ---
-
 // 1. СТВОРЕННЯ (Create)
 // Реалізовано: insertOne та insertMany
 app.post('/db-ops/insert-one', isAuthenticated, async (req, res) => {
@@ -469,16 +463,8 @@ app.get('/users/average-age', async (req, res) => {
     }
 });
 
-// --- 📘 МОДЕЛЬ ДЛЯ "assignments" ---
-const assignmentSchema = new mongoose.Schema({
-    name: String,
-    subject: String,
-    score: Number
-});
-const Assignment = mongoose.model('Assignment', assignmentSchema);
-
-// --- 📗 МАРШРУТИ ДЛЯ "assignments" ---
-// ➤ Додати кілька документів
+// ---------------------------
+// --- НОВІ МARШРУТИ ДЛЯ assignments (ADD) ---
 app.post('/assignments/bulk', isAuthenticated, async (req, res) => {
     try {
         const data = req.body.items || [
@@ -495,7 +481,6 @@ app.post('/assignments/bulk', isAuthenticated, async (req, res) => {
     }
 });
 
-// ➤ Знайти всіх зі score > 80
 app.get('/assignments/highscores', isAuthenticated, async (req, res) => {
     try {
         const results = await Assignment.find({ score: { $gt: 80 } });
@@ -505,7 +490,6 @@ app.get('/assignments/highscores', isAuthenticated, async (req, res) => {
     }
 });
 
-// ➤ Оновити одного (score < 85 → +5)
 app.put('/assignments/increase-score', isAuthenticated, async (req, res) => {
     try {
         const result = await Assignment.updateOne(
@@ -518,7 +502,6 @@ app.put('/assignments/increase-score', isAuthenticated, async (req, res) => {
     }
 });
 
-// ➤ Видалити того, хто має найнижчий бал
 app.delete('/assignments/delete-lowest', isAuthenticated, async (req, res) => {
     try {
         const lowest = await Assignment.find().sort({ score: 1 }).limit(1);
@@ -531,7 +514,6 @@ app.delete('/assignments/delete-lowest', isAuthenticated, async (req, res) => {
     }
 });
 
-// ➤ Проекція (name + score без _id)
 app.get('/assignments/projection', isAuthenticated, async (req, res) => {
     try {
         const results = await Assignment.find({}, { name: 1, score: 1, _id: 0 });
@@ -541,6 +523,7 @@ app.get('/assignments/projection', isAuthenticated, async (req, res) => {
     }
 });
 
+// ---------------------------
 // --- Обробка 404 та 500 помилок ---
 app.use((req, res) => res.status(404).send('Сторінку не знайдено'));
 app.use((err, req, res, next) => {
@@ -550,3 +533,5 @@ app.use((err, req, res, next) => {
 
 // --- Запуск ---
 app.listen(PORT, () => console.log(`Сервер запущено на http://localhost:${PORT}`));
+
+
