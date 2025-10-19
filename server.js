@@ -469,6 +469,78 @@ app.get('/users/average-age', async (req, res) => {
     }
 });
 
+// --- 📘 МОДЕЛЬ ДЛЯ "assignments" ---
+const assignmentSchema = new mongoose.Schema({
+    name: String,
+    subject: String,
+    score: Number
+});
+const Assignment = mongoose.model('Assignment', assignmentSchema);
+
+// --- 📗 МАРШРУТИ ДЛЯ "assignments" ---
+// ➤ Додати кілька документів
+app.post('/assignments/bulk', isAuthenticated, async (req, res) => {
+    try {
+        const data = req.body.items || [
+            { name: 'Alice', subject: 'Math', score: 82 },
+            { name: 'Bob', subject: 'History', score: 74 },
+            { name: 'Charlie', subject: 'Physics', score: 91 },
+            { name: 'Diana', subject: 'Biology', score: 65 },
+            { name: 'Eve', subject: 'Chemistry', score: 88 }
+        ];
+        const result = await Assignment.insertMany(data);
+        res.json({ message: 'insertMany: assignments додано', data: result });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ➤ Знайти всіх зі score > 80
+app.get('/assignments/highscores', isAuthenticated, async (req, res) => {
+    try {
+        const results = await Assignment.find({ score: { $gt: 80 } });
+        res.json({ message: 'Знайдено студентів з балами > 80', data: results });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ➤ Оновити одного (score < 85 → +5)
+app.put('/assignments/increase-score', isAuthenticated, async (req, res) => {
+    try {
+        const result = await Assignment.updateOne(
+            { score: { $lt: 85 } },
+            { $inc: { score: 5 } }
+        );
+        res.json({ message: 'updateOne: бал підвищено', result });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ➤ Видалити того, хто має найнижчий бал
+app.delete('/assignments/delete-lowest', isAuthenticated, async (req, res) => {
+    try {
+        const lowest = await Assignment.find().sort({ score: 1 }).limit(1);
+        if (!lowest.length) return res.json({ message: 'Немає записів для видалення' });
+
+        const result = await Assignment.deleteOne({ _id: lowest[0]._id });
+        res.json({ message: 'deleteOne: видалено запис з найнижчим балом', result });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ➤ Проекція (name + score без _id)
+app.get('/assignments/projection', isAuthenticated, async (req, res) => {
+    try {
+        const results = await Assignment.find({}, { name: 1, score: 1, _id: 0 });
+        res.json({ message: 'Проекція (name + score)', data: results });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // --- Обробка 404 та 500 помилок ---
 app.use((req, res) => res.status(404).send('Сторінку не знайдено'));
 app.use((err, req, res, next) => {
